@@ -1,5 +1,10 @@
 ## Concave Hull
 
+This is a fork of https://github.com/furstenheim/ConcaveHull
+The following changes were made in the usace-mods branch
+ - switch to golang modules
+ - switch from the depricated github.com/paulmach/go.geo to github.com/twpayne/go-geom for convex hull operations
+
 ### Usage
 
 The algorithms accepts a flat array of coordinates (even positions are latitudes and odd positions are longitudes)

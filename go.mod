@@ -1,4 +1,4 @@
-module concave-hull
+module github.com/usace/concave-hull
 
 go 1.16
 

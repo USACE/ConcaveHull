@@ -1,4 +1,3 @@
-package ConcaveHull
-
+package concavehull
 
 type convexHullFlatPoints FlatPoints

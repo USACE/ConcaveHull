@@ -1,19 +1,20 @@
-package ConcaveHull
+package concavehull
 
 import (
-	"testing"
+	"bufio"
 	"fmt"
 	"log"
 	"math"
 	"math/rand"
-	"github.com/furstenheim/SimpleRTree"
-	"bufio"
 	"os"
-	"strings"
-	"strconv"
 	"path/filepath"
-	"github.com/stretchr/testify/assert"
+	"strconv"
+	"strings"
 	"sync"
+	"testing"
+
+	"github.com/furstenheim/SimpleRTree"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestCompute_concaveHullInAntiClockwiseOrder(t *testing.T) {
@@ -24,7 +25,6 @@ func TestCompute_concaveHullInAntiClockwiseOrder(t *testing.T) {
 	fmt.Println(points2)
 	compareConcaveHulls(t, result, points2)
 }
-
 
 func TestCompute_concaveHullShuffled(t *testing.T) {
 	points := FlatPoints{1.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0}
@@ -44,28 +44,27 @@ func TestComputeFromSorted_simpleConvexHull(t *testing.T) {
 	compareConcaveHulls(t, result, points2)
 }
 
-
 func TestCompute_simpleConcaveHull(t *testing.T) {
-	points := FlatPoints{1./3., 0.5, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0}
-	points2 := FlatPoints{0.0, 0.0, 1.0, 0., 1., 1., 0., 1., 1./3., 0.5, 0.0, 0.0}
+	points := FlatPoints{1. / 3., 0.5, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0}
+	points2 := FlatPoints{0.0, 0.0, 1.0, 0., 1., 1., 0., 1., 1. / 3., 0.5, 0.0, 0.0}
 	result := Compute(points)
 	fmt.Println(result)
 	fmt.Println(points2)
 	compareConcaveHulls(t, result, points2)
 }
 
-func TestConcaveHull_segmentize (t *testing.T) {
+func TestConcaveHull_segmentize(t *testing.T) {
 	const size = 200
-	points := make([]float64, size * 2)
-	for i := 0; i < 2 * size; i++ {
+	points := make([]float64, size*2)
+	for i := 0; i < 2*size; i++ {
 		points[i] = rand.Float64()
 	}
 	fp := FlatPoints(points)
 	r := SimpleRTree.New().Load(SimpleRTree.FlatPoints(fp))
 	c := new(concaver)
 	c.rtree = r
-	c.closestPointsMem = make([]closestPoint, 0 , 2)
-	c.searchItemsMem = make([]searchItem, 0 , 2)
+	c.closestPointsMem = make([]closestPoint, 0, 2)
+	c.searchItemsMem = make([]searchItem, 0, 2)
 
 	c.seglength = DEFAULT_SEGLENGTH
 
@@ -75,8 +74,8 @@ func TestConcaveHull_segmentize (t *testing.T) {
 		x1, y1 := fp.Take(index1)
 		x2, y2 := fp.Take(index2)
 		closestPoints := c.segmentize(x1, y1, x2, y2)
-		p1 := make([]float64, 0, 2 * len(closestPoints))
-		for _, cp := range(closestPoints) {
+		p1 := make([]float64, 0, 2*len(closestPoints))
+		for _, cp := range closestPoints {
 			p1 = append(p1, cp.x, cp.y)
 		}
 		p2 := c.segmentizeLinear(x1, y1, x2, y2)
@@ -87,21 +86,22 @@ func TestConcaveHull_segmentize (t *testing.T) {
 	}
 
 }
+
 //go:generate git submodule init
 //go:generate git submodule update
 //go:generate git submodule foreach git pull origin master
-func BenchmarkCompute_ConcaveHullSmall (b * testing.B) {
+func BenchmarkCompute_ConcaveHullSmall(b *testing.B) {
 	dir := "examples/examples"
-	err := filepath.Walk(dir, func (path string, info os.FileInfo, err error) error {
+	err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			log.Fatal(err)
 			return err
 		}
 		if !info.IsDir() && info.Name() != ".git" {
-			b.Run("CPU", func (b *testing.B) {
+			b.Run("CPU", func(b *testing.B) {
 				scanBenchmark(b, path, info, false)
 			})
-			b.Run("Memory", func (b *testing.B) {
+			b.Run("Memory", func(b *testing.B) {
 				scanBenchmark(b, path, info, true)
 			})
 		}
@@ -112,9 +112,9 @@ func BenchmarkCompute_ConcaveHullSmall (b * testing.B) {
 	}
 }
 
-func TestCompute_ConcaveHullSmall (t * testing.T) {
+func TestCompute_ConcaveHullSmall(t *testing.T) {
 	dir := "examples/examples"
-	err := filepath.Walk(dir, func (path string, info os.FileInfo, err error) error {
+	err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			log.Fatal(err)
 			return err
@@ -129,7 +129,7 @@ func TestCompute_ConcaveHullSmall (t * testing.T) {
 	}
 }
 
-func Benchmark_segmentize (b *testing.B) {
+func Benchmark_segmentize(b *testing.B) {
 	benchmarks := []struct {
 		name string
 		size int
@@ -151,7 +151,7 @@ func Benchmark_segmentize (b *testing.B) {
 			fp := SimpleRTree.FlatPoints(points)
 			r := SimpleRTree.NewWithOptions(SimpleRTree.Options{UnsafeConcurrencyMode: true}).Load(fp)
 			c := concaver{
-				rtree: r,
+				rtree:     r,
 				seglength: 0.001,
 			}
 			b.ResetTimer()
@@ -163,9 +163,9 @@ func Benchmark_segmentize (b *testing.B) {
 	}
 }
 
-func Benchmark_ConcaveHullBig (b * testing.B) {
+func Benchmark_ConcaveHullBig(b *testing.B) {
 	dir := "examples/large-examples"
-	err := filepath.Walk(dir, func (path string, info os.FileInfo, err error) error {
+	err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			log.Fatal(err)
 			return err
@@ -180,41 +180,41 @@ func Benchmark_ConcaveHullBig (b * testing.B) {
 	}
 }
 
-func scanBenchmark (b * testing.B, path string, f os.FileInfo, isMemoryTest bool) {
+func scanBenchmark(b *testing.B, path string, f os.FileInfo, isMemoryTest bool) {
 	points := readExampleFile(path, f)
 	concaveHullPool := &sync.Pool{}
 	_ = ComputeWithOptions(points, &Options{
-		Seglength: 1, // coordinates are in a projection
-		ConcaveHullPool: concaveHullPool,
+		Seglength:                   1, // coordinates are in a projection
+		ConcaveHullPool:             concaveHullPool,
 		EstimatedRatioConcaveConvex: 4,
 	})
-	b.Run(path, func (b * testing.B) {
+	b.Run(path, func(b *testing.B) {
 		if isMemoryTest {
 			b.ReportAllocs()
 		}
 		for n := 0; n < b.N; n++ {
 			_ = ComputeWithOptions(points, &Options{
-				Seglength: 1, // coordinates are in a projection
-				ConcaveHullPool: concaveHullPool,
+				Seglength:                   1, // coordinates are in a projection
+				ConcaveHullPool:             concaveHullPool,
 				EstimatedRatioConcaveConvex: 4,
 			})
 		}
 	})
 }
 
-func testExample (t * testing.T, path string, f os.FileInfo) {
+func testExample(t *testing.T, path string, f os.FileInfo) {
 	points := readExampleFile(path, f)
 	expected := readResultFile(filepath.Join("examples-result", f.Name()))
 	concaveHullPool := &sync.Pool{}
-	t.Run(path, func (t * testing.T) {
+	t.Run(path, func(t *testing.T) {
 		concaveHull1 := ComputeWithOptions(points, &Options{
-			ConcaveHullPool: concaveHullPool,
+			ConcaveHullPool:             concaveHullPool,
 			EstimatedRatioConcaveConvex: 4,
 		})
 		assert.Equal(t, expected, []float64(concaveHull1))
 		// Check that pools are cleaned correctly
 		concaveHull2 := ComputeWithOptions(points, &Options{
-			ConcaveHullPool: concaveHullPool,
+			ConcaveHullPool:             concaveHullPool,
 			EstimatedRatioConcaveConvex: 4,
 		})
 		assert.Equal(t, expected, []float64(concaveHull2))
@@ -222,7 +222,7 @@ func testExample (t * testing.T, path string, f os.FileInfo) {
 }
 func readResultFile(path string) []float64 {
 	file, err := os.Open(path)
-	if (err != nil) {
+	if err != nil {
 		log.Fatal(err)
 	}
 	defer file.Close()
@@ -233,7 +233,7 @@ func readResultFile(path string) []float64 {
 			return c == ' '
 		}
 		coordinates := strings.FieldsFunc(scanner.Text(), myfunc)
-		for _, fs := range(coordinates) {
+		for _, fs := range coordinates {
 			f, err := strconv.ParseFloat(fs, 64)
 			if err != nil {
 				log.Fatal(err)
@@ -246,7 +246,7 @@ func readResultFile(path string) []float64 {
 
 func readExampleFile(path string, f os.FileInfo) []float64 {
 	file, err := os.Open(path)
-	if (err != nil) {
+	if err != nil {
 		log.Fatal(err)
 	}
 	defer file.Close()
@@ -260,15 +260,12 @@ func readExampleFile(path string, f os.FileInfo) []float64 {
 		x, _ := strconv.ParseFloat(coordinates[1], 64)
 		y, err := strconv.ParseFloat(coordinates[0], 64)
 		// mainly headers
-		if (err == nil) {
+		if err == nil {
 			points = append(points, x, y)
 		}
 	}
 	return points
 }
-
-
-
 
 func compareConcaveHulls(t *testing.T, actualC, expectedC FlatPoints) {
 	if actualC.Len() != expectedC.Len() {
@@ -289,11 +286,11 @@ func compareConcaveHulls(t *testing.T, actualC, expectedC FlatPoints) {
 }
 
 // Split side in small edges, for each edge find closest point. Remove duplicates
-func (c * concaver) segmentizeLinear (x1, y1, x2, y2 float64) (points []float64) {
-	dist := math.Sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2))
+func (c *concaver) segmentizeLinear(x1, y1, x2, y2 float64) (points []float64) {
+	dist := math.Sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2))
 	nSegments := math.Ceil(dist / c.seglength)
 	factor := 1 / nSegments
-	flatPoints := make([]float64, 0, int(2 * nSegments))
+	flatPoints := make([]float64, 0, int(2*nSegments))
 	vX := factor * (x2 - x1)
 	vY := factor * (y2 - y1)
 

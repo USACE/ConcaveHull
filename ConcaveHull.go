@@ -1,4 +1,4 @@
-package ConcaveHull
+package concavehull
 
 /**
 Golang implementation of https://github.com/skipperkongen/jts-algorithm-pack/blob/master/src/org/geodelivery/jap/concavehull/SnapHull.java

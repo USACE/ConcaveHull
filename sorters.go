@@ -1,44 +1,44 @@
-package ConcaveHull
+package concavehull
 
 type lexSorter FlatPoints
 
-func (s lexSorter) Less (i, j int) bool {
-	if s[2 * i] < s[2 * j] {
+func (s lexSorter) Less(i, j int) bool {
+	if s[2*i] < s[2*j] {
 		return true
 	}
-	if s[2 * i] > s[2 * j] {
+	if s[2*i] > s[2*j] {
 		return false
 	}
 
-	if s[2 * i + 1] < s[2 * j + 1] {
+	if s[2*i+1] < s[2*j+1] {
 		return true
 	}
 
-	if s[2 * i + 1] > s[2 * j + 1] {
+	if s[2*i+1] > s[2*j+1] {
 		return false
 	}
 	return true
 }
 
-func (s lexSorter) Len () (int) {
+func (s lexSorter) Len() int {
 	return len(s) / 2
 }
 
-func (s lexSorter) Swap (i, j int) {
-	s[2 * i], s[2 * i + 1], s[2 * j], s[2 * j + 1] = s[2 * j], s[2 * j + 1], s[2 * i], s[2 * i + 1]
+func (s lexSorter) Swap(i, j int) {
+	s[2*i], s[2*i+1], s[2*j], s[2*j+1] = s[2*j], s[2*j+1], s[2*i], s[2*i+1]
 }
 
 type closestPointSorter []closestPoint
 
-func (s closestPointSorter) Less (i, j int) bool {
+func (s closestPointSorter) Less(i, j int) bool {
 	return s[i].index < s[j].index
 }
 
-func (s closestPointSorter) Len () (int) {
+func (s closestPointSorter) Len() int {
 	return len(s)
 }
 
-func (s closestPointSorter) Swap (i, j int) {
+func (s closestPointSorter) Swap(i, j int) {
 	s[i], s[j] = s[j], s[i]
 }
 
@@ -238,7 +238,7 @@ func (c closestPointSorter) cpQuickSort(a, b, maxDepth int) {
 // Sort sorts c.
 // It makes one call to c.Len to determine n, and O(n*log(n)) calls to
 // c.Less and c.Swap. The sort is not guaranteed to be stable.
-func (c closestPointSorter) cpSort () {
+func (c closestPointSorter) cpSort() {
 	n := c.Len()
 	c.cpQuickSort(0, n, maxDepth(n))
 }
